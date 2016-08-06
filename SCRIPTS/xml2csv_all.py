@@ -18,13 +18,15 @@ writer.writerow(fields) #writes field
 
 dirname=os.getcwd()
 for file in os.listdir(dirname):
-    
-    if file.endswith(".xml"):
-        print(file)
-        tree=ET.parse(dirname + "\\" + file)
-        field_data=[]        
-        for i in range(len(fields)):
-            field_data.append(tree.findtext('.//{http://www.irs.gov/efile}'+fields[i]))
+    try: 
+        if file.endswith(".xml"):
+            print(file)
+            tree=ET.parse(dirname + "\\" + file)
+            field_data=[]        
+            for i in range(len(fields)):
+                field_data.append(tree.findtext('.//{http://www.irs.gov/efile}'+fields[i]))
 
-        writer.writerow(field_data)
+            writer.writerow(field_data)
+    except:
+        pass
 csv_out.close() # closing the csv file

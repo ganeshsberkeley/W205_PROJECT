@@ -40,11 +40,12 @@ fi
 echo "Renaming the files to remove blank spaces and replacing with _" 
 echo
 echo
-ls ../../DATASETS/*csv > temp
-ls ../../DATASETS/GDP_Metro/*csv >> temp
-ls ../../DATASETS/GDP_State/*csv >> temp
+ls ../../DATASETS/xmltrim*csv > temp
+#ls ../../DATASETS/*csv > temp
+#ls ../../DATASETS/GDP_Metro/*csv >> temp
+#ls ../../DATASETS/GDP_State/*csv >> temp
 #ls ../../DATASETS/IRSIndex/*csv >> temp
-ls ../../DATASETS/Georelations/*csv >> temp
+#ls ../../DATASETS/Georelations/*csv >> temp
 while read file
 do
 	cp -rf "$file" .
@@ -86,9 +87,11 @@ echo
 
 echo "Copying the extract_header.pl to renamed backup directory"
 cp ../extract_header.pl $rn_backup
+cp ../alltable.sql $rn_backup
 
 echo "Please run the $DIR/$rn_backup/extract_header.pl in the $DIR/$rn_backup Directory"
 echo "Copy the hive_base_ddl.sql to whereever you want and run hive -f hive_base_ddl.sql"
+echo "In order to merge the split xmltrima*csv files into one table please run the commands in alltable.sql"
 
 cd ..
 

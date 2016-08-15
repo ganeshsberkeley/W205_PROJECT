@@ -63,6 +63,10 @@ The following scripts are to be used for the project to create tables for hive
 
 5. hive -f hive_base_ddl.sql -> Load all the tables into hive
 
+6. hive -f alltable.sql -> Load the script to merge the xmltrimaa, xmltrimab, xmltrimac into xmltrimall table
+
+The xmltrimall table is the one the user needs to work with in tableau.
+
 
 Now we are ready to connect to tableau
 

@@ -1,136 +1,42 @@
-ReadMe: Nonprofits Twitter Analysis 
+Architecture Design Quick Summary: Final Project 
 
-This file builds provides some information on 
+Setup Assumptions, Running, and File Dependencies:
 
-goes through setp by step instructions to run this application. Comments and instrcution lines are denoted with ` and commands or inputs for cmd are denoted by $.
+The starting assumptions is the user has logged into AWS and has the appropriate ports/system configuration for hadoop, hive, and ports open for Tableau. Additionally it is assumed that hadoop and postgres are both installed already in a manner consistent with out previous labs. Please note that file paths may be different if the user changes the installation paths. 
 
-Step 1: Logging In and Root Installs
+Architecture Description:
 
-	`Log into AWS and lauch EC2 instance and attach EBS volume. 
+This application is based off leveraging hdfs to store three primary datasets including nonprofit IRS 990 tax information, state population data, and state gdp data. Hive is then used to query and retrieve data relevent to specific questions and Tableau in connection to the hive server can be leveraged for analysis. 
 
-	`Find location of EBS volumn: fdisk -l
-	`Mount disk volumne (default /dev/xvdf): 
-	$mount -t ext4 /dev/path /data 
+Application Idea:
 
-	`Make sure Github is installed and the appropriate directory is pulled (ashley-dsci/w205_TurnIn/exercise_2)
-	`Key files will be copied from here later on
-	`In order to have the filepaths consistent with commands below
-	`pull the exercise_2 directory into the folder /data/ex2/
+This  application is focused on analysis of the nonprofit organizations focusing on geographic trends. The application stores and organizes data using a defined schema and alloes for query and analysis.  This allows for exploration of geographic locations and limitations for NGOs striving for success.  
 
-	Start up key processes
-		`Install lein as required by streamparse
-		wget --directory-prefix=/usr/bin/ https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
-		chmod a+x /usr/bin/lein
-		sudo /usr/bin/lein
+Directory Descriptions:
 
-		`start hadoop: 
-		$/root/start-hadoop.sh 
-		
-		`start postgres: 
-		$/data/start_postgres.sh
+The Github repository for this Final Projet has the following folders:
 
-		`move the current python version: 
-		$mv /usr/bin/python /usr/bin/python266
-
-		`change to w205 user: 
-		$su - w205
+Datasets - this was the initial folder to share and organize the data
+Milestones - Includes copies of all of the milestones for the proejct
+Scripts - Includes any scipts that were used
+Twitter - includes the start of the files for the streaing twitter aspect of the project 
 
 
-Step 2: Installation & Configuration from w205 user
+Twitter Application (not complete)
 
-	We will be using anaconda to manage the python packages, anaconda needs to be installed as teh w205 user to be able to have the correct permissions when running the scripts. 
+Initially we intended to add in streaming twitter data on the most successful NGOs to see identify possible messaging wording related to areas of interest. For instance if these NGOs are using social media to advertise events or recruit volunteers. However due to time constraints we were unable to impliment this fully. The twitter folder on github has some of the files we started working on. The specific NGOs or hashtags can be modified in the tweets.py file. In this file, we currently have just general hashtags related to NGOs since we didn't get to finish this analysis. 
 
-	Anaconda: 
-		`Get the correct anaconda version:
-		$wget https://repo.continuum.io/archive/Anaconda2-4.1.1-Linux-x86_64.sh
-		
-		`install anaconda and follow promts to install 
-		$bash Anaconda2-4.1.1-Linux-x86_64.sh
-		
-		`set anaconda's python as default
-		`Anaconda install will ask to prepend to PATH /home/w205/anaconda2 - press enter/yes
-		$yes
-		
-		`check python version, if not 2.7.12 use code below to set the default
-		$python --version
+The twitter work assumes that ipython2.7 is being used and streamparse, lein, psycopg2, tweepy, and postgres are all set up and running appropriately. Additionally tables are created in postgres to store the word count data. The files in the twitter folder then are replaced similar to the example below. 
 
-		`use the commands below from root to set link and default python version and return to w205 user`
-		`(default placement /home/w205/anaconda2)
-		$ln -s /path/to/anaconda/bin/python /usr/bin/python 
-		$export PATH=/home/w205/anaconda2/bin:$PATH
-		$python --version
-
-
-	Psycopg2: 
-	`install psycopg2 and follow promts
-	$conda install psycopg2
-
-
-	Streamparse: 
-		`anacnoda includes pip, virtualenv, easy_install`
-		`update pip to avoid warning messages`
-		$conda update pip
-		
-		`install streamparse
-		$pip install streamparse
-
-	Tweepy: 
-		`install tweepy
-		$pip install tweepy
-
-
-Step 3: Set Up Postgres
-
-	`create the postgres database
-	$psql --username=postgres
-
-	`now we will create a new database using the following SQL commands
-
-	CREATE USER w205 WITH PASSWORD 'postgres';
-	DROP DATABASE Tcount;
-	CREATE DATABASE Tcount;
-	ALTER DATABASE Tcount OWNER TO w205;
-	GRANT ALL ON DATABASE Tcount TO w205;
-
-	`check the databases lists to ensure tcount is there
-	$postgres=# \l
-
-	`quit postgres
-	$\q
-
-	`log into the Tcount database
-	$psql --host=localhost --username=w205 --password --dbname=tcount
-	`it will promt for a password
-	`Password for user w205: (hit enter - no password)
-	$
-
-	`create table Tweetwordcount (note first we drop the table in case it already existed)
-	`use the following sql commands (note do not copy the tab before CREATE)
-	
-	DROP TABLE Tweetwordcount
-	CREATE TABLE Tweetwordcount(word TEXT PRIMARY KEY NOT NULL, count INT NOT NULL);
-
-	`check to make sure table was created
-	$tcount=> \d
-
-	`quit postgres and return to w205 user
-	$\q
-
-
-Step 4: Execution
-
-	`From the w205 user
-	`launch a storm instanace Tweetwordcount
-	`Note cannot include number in the streamparse filepath (ie EX2... throws an error)
+*******************
 	$sparse quickstart Tweetwordcount
 
-	`move the files pulled from Github (should be pulled into /data/ex2) 
-	`to the correct file locations in Tweetwordcount (bolts, spout, topoligies)
-	$cp /data/ex2/tweetwordcount/tweetwordcount.clj  /home/w205/Tweetwordcount/topologies/tweetwordcount.clj 
-	$rm /home/w205/Tweetwordcount/topologies/wordcount.clj
-	$cp /data/ex2/tweetwordcount/tweets.py /home/w205/Tweetwordcount/src/spouts/tweets.py
-	$cp /data/ex2/tweetwordcount/parse.py  /home/w205/Tweetwordcount/src/bolts/parse.py 
-	$cp -f /data/ex2/tweetwordcount/wordcount.py  /home/w205/Tweetwordcount/src/bolts/wordcount.py
+	`move the files pulled from Github to the correct file locations in Tweetwordcount (bolts, spout, topoligies)
+	$cp githubpath/tweetwordcount.clj  /path/Tweetwordcount/topologies/tweetwordcount.clj 
+	$rm /path/Tweetwordcount/topologies/wordcount.clj
+	$cp githubpath/tweets.py /path/Tweetwordcount/src/spouts/tweets.py
+	$cp githubpath/parse.py  /path/Tweetwordcount/src/bolts/parse.py 
+	$cp -f githubpath/wordcount.py  /path/Tweetwordcount/src/bolts/wordcount.py
 
 
 	`change to the tweetwordcount directory
@@ -138,23 +44,5 @@ Step 4: Execution
 
 	`run the application
 	sparse run
+**********************
 
-	`Note: there is not timeout time given, so the application will continue to run
-	`use cntrl+c or other keystroke to stop the application
-	(CRTL + c)
-
-	`return to the w205 directory
-	`cd ..
-
-Step 5: Analysis
-	`copy the analysis files to the users directories
-	$cp -R /data/ex2/analysis/* /home/w205/
-
-	`run the finalresults.py file with word or without
-	$python finalresults.py
-
-	`run the histogram.py file with two given values k1 k2
-	$python histogram.py k1 k2
-
-	`plot.png is already created in the github folder, but can be regenerated using the plot.py file
-	$python plot.py

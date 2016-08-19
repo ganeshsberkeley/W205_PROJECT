@@ -1,3 +1,8 @@
 					README
 					------
-Contains all the scripts needed to create tables for spark-sql
+Contains all the scripts needed to create tables for hive
+
+
+xmltags.csv - includes all the fields that need to be kept from XML files
+xml2csv_all.sh - downloads all of the XML files in the index and runs the python script to parse and combine then deletes XMLs
+xml2csv_all.py - parses XML files to one csv file
